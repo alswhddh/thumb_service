@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-3">
+    <div class="btn-group" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-secondary ca disabled{% if ca=='eating' %}active{% endif %}"value="eating">먹방,ASMR</button>
+        <button type="button" class="btn btn-secondary ca disabled{% if ca=='beauti' %}active{% endif %}"value="beauti">뷰티</button>
+        <button type="button" class="btn btn-secondary ca disabled{% if ca=='trip' %}active{% endif %}"value="trip">여행</button>
+        <button type="button" class="btn btn-secondary ca disabled{% if ca=='politics' %}active{% endif %}"value="politics">정치.경제.사회</button>
+      </div>
+    <div class="row justify-content-between my-3">
+        <div class="col-2">
+            <select class="form-control so">
+                <option value="score" {% if so=='score' %}selected{% endif %}>썸네일 점수</option>
+                <option value="relation" {% if so=='relation' %}selected{% endif %}>연관도</option>
+                <option value="views" {% if so=='views' %}selected{% endif %}>조회수</option>
+            </select>
+        </div>
+
+        <div class="col-4 input-group">
+            <input type="text" class="form-control kw" value="{{ kw or '' }}">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
+            </div>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+        <tr class="thead-dark">
+            <!-- <th>카테고리</th> -->
+            <th>유튜버</th>
+            <th>제목 </th>
+            <th>조회수</th>
+            <th>점수</th>
+            <th>썸네일</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if thumb_list %}
+        {% for items in thumb_list.items %}
+        <tr>
+            <!-- <td>{{ items.category }}</td> -->
+            <td>{{ items.youtuber }}</td>
+            <td>{{ items.title }}</td>
+            <td>{{ items.views }}</td>
+            <td>{{ items.score }}</td>
+            <td>
+                <a class="fit-picture" href="{{ items.imgAdr }}">
+                <img src="{{ items.imgAdr }}" width="250x">
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="3">결과가 없습니다..</td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+    <!-- 페이징처리 시작 -->
+    <ul class="pagination justify-content-center">
+        <!-- 이전페이지 -->
+        {% if thumb_list.has_prev %}
+        <li class="page-item">
+            <a class="page-link" data-page="{{ thumb_list.prev_num }}" href="#">이전</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" tabindex="-1" aria-disabled="true" href="#">이전</a>
+        </li>
+        {% endif %}
+        {% for page_num in thumb_list.iter_pages() %}
+            {% if page_num %}
+                {% if page_num != thumb_list.page %}
+                <li class="page-item">
+                    <a class="page-link" data-page="{{ page_num }}" href="#">{{ page_num }}</a>
+                </li>
+                {% else %}
+                <li class="page-item active" aria-current="page">
+                    <a class="page-link" href="#">{{ page_num }}</a>
+                </li>
+                {% endif %}
+            {% else %}
+                <li class="disabled">
+                    <a class="page-link" href="#">...</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+        <!-- 다음페이지 -->
+        {% if thumb_list.has_next %}
+        <li class="page-item">
+            <a class="page-link" data-page="{{ thumb_list.next_num }}" href="#">다음</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <a class="page-link" tabindex="-1" aria-disabled="true" href="#">다음</a>
+        </li>
+        {% endif %}
+    </ul>
+    <!-- 페이징처리 끝 -->
+</div>
+<form id="searchForm" method="get" action="{{ url_for('thumb._list') }}">
+    <input type="hidden" id="kw" name="kw" value="{{ kw or '' }}">
+    <input type="hidden" id="page" name="page" value="{{ page }}">
+    <input type="hidden" id="so" name="so" value="{{ so }}">
+    <input type="hidden" id="ca" name="ca" value="{{ ca }}">
+</form>
+{% endblock %}
+{% block script %}
+<script type='text/javascript'>
+$(document).ready(function(){
+    $(".page-link").on('click', function() {
+        $("#page").val($(this).data("page"));
+        $("#searchForm").submit();
+    });
+    $("#btn_search").on('click', function() {
+        $("#kw").val($(".kw").val());
+        $("#page").val(1);  // 검색버튼을 클릭할 경우 1페이지부터 조회한다.
+        $("#searchForm").submit();
+    });
+    $(".so").on('change', function() {
+        $("#so").val($(".so").val());
+        $("#page").val(1);
+        $("#searchForm").submit();
+    });
+    $(".ca").on('click', function() {
+        $("#ca").val($(this).val());
+        $("#page").val(1);
+        $("#searchForm").submit();
+    });
+});
+</script>
+{% endblock %}
