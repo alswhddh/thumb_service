@@ -21,11 +21,10 @@ def create_app():
 
     from . import models
 
-    from .views import main_views , thumb_views, classfication_views, similartly_views #,viewsPredict_views
+    from .views import main_views , thumb_views, classfication_views, viewsPredict_views
     app.register_blueprint(main_views.bp)
     app.register_blueprint(thumb_views.bp)
     app.register_blueprint(classfication_views.bp)
-    # app.register_blueprint(viewsPredict_views.bp)
-    app.register_blueprint(similartly_views.bp)
+    app.register_blueprint(viewsPredict_views.bp)
 
     return app
